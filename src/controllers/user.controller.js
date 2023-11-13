@@ -26,24 +26,8 @@ export const createUser = async (req, res) => {
 export const getAllUsers = async (req, res) => {
     try {
         const data = await User.find().select("-password")
-        const users = []
 
-        data.map(user => {
-            let newUser = {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                message: []
-            }
-            users.push(user)
-
-            // users.push(newUser);
-        })
-
-        console.log('YOOO', users)
-
-        return res.status(200).json({ message: 'Ok' })
-
+        return res.status(200).json({ message: 'Ok', users: data })
     } catch (err) {
         return res.status(400).json({ message: 'Error', errors: err })
     }

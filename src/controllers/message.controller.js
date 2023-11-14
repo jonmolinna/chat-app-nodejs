@@ -1,5 +1,6 @@
 import Message from '../models/Message.js';
 import { validaGetMessage } from '../utils/validate.get.message.js';
+import { validateMessage } from '../utils/validate.message.js';
 
 export const sendMessage = async (req, res) => {
     const body = req.body;

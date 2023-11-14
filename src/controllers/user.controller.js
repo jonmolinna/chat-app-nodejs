@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import Message from '../models/Message.js';
 import { validateUser } from "../utils/validate.user.js";
 import bcrypt from 'bcryptjs';
 
@@ -11,10 +12,16 @@ export const createUser = async (req, res) => {
             throw errors
         };
 
-        const { name, email, password } = body;
         let hashPassword = await bcrypt.hash(password, 6);
 
-        const data = await User.create({ name, email, password: hashPassword });
+        const newUser = {
+            name: body.name,
+            email: body.email,
+            password: hashPassword,
+            createdAt: new Date().toISOString(),
+        }
+
+        const data = await User.create(newUser);
         const user = { name: data.name, email: data.email, id: data._id };
 
         return res.status(201).json({ message: 'Usuario creado', user });
@@ -24,10 +31,31 @@ export const createUser = async (req, res) => {
 };
 
 export const getAllUsers = async (req, res) => {
-    try {
-        const data = await User.find().select("-password")
+    const { from } = req.body;
 
-        return res.status(200).json({ message: 'Ok', users: data })
+    try {
+        const users = await User.find({ _id: { $ne: from } }).select("-password");
+        const messages = await Message.find({ $or: [{ from: from }, { to: from }] }).sort({ createdAt: 'desc' });
+
+        let usersMessage = [];
+
+        const data = users.map(user => {
+            let message = messages.find(message => message.from.toString() === user._id.toString() || message.to.toString() === user._id.toString());
+
+            let newUser = {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                createdAt: user.createdAt,
+                messages: message,
+            }
+            console.log('TOOOO', user)
+            usersMessage.push(newUser);
+        });
+
+
+
+        return res.status(200).json({ message: 'Users List', users: usersMessage })
     } catch (err) {
         return res.status(400).json({ message: 'Error', errors: err })
     }

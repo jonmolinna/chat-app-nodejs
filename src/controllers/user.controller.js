@@ -12,7 +12,7 @@ export const createUser = async (req, res) => {
             throw errors
         };
 
-        let hashPassword = await bcrypt.hash(password, 6);
+        let hashPassword = await bcrypt.hash(body.password, 6);
 
         const newUser = {
             name: body.name,
@@ -49,11 +49,25 @@ export const getAllUsers = async (req, res) => {
                 createdAt: user.createdAt,
                 messages: message,
             }
-            console.log('TOOOO', user)
             usersMessage.push(newUser);
         });
 
+        usersMessage.sort((a, b) => {
+            let createdAt1 = a?.messages?.createdAt || a.createdAt;
+            let createdAt2 = b?.messages?.createdAt || b.createdAt;
+            let date1 = new Date(createdAt1).getTime();
+            let date2 = new Date(createdAt2).getTime();
 
+            if (date1 > date2) {
+                return -1;
+            }
+
+            if (date1 < date2) {
+                return 1;
+            }
+
+            return 0;
+        });
 
         return res.status(200).json({ message: 'Users List', users: usersMessage })
     } catch (err) {

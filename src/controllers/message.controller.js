@@ -3,22 +3,24 @@ import { validaGetMessage } from '../utils/validate.get.message.js';
 import { validateMessage } from '../utils/validate.message.js';
 
 export const sendMessage = async (req, res) => {
-    const body = req.body;
+    const from = req.idToken;
+    const { to, message } = req.body;
 
     try {
-        const { errors, valid } = await validateMessage(body);
+        const { errors, valid } = await validateMessage({ to, message, from });
         if (!valid) {
             throw errors
         };
 
-        const message = {
-            message: body.message,
-            from: body.from,
-            to: body.to,
+        const sendMessage = {
+            message,
+            from,
+            to,
             createdAt: new Date().toISOString(),
         }
 
-        const data = await Message.create(message);
+        const data = await Message.create(sendMessage);
+
         return res.status(201).json({ message: 'Mensaje enviado', data });
     } catch (err) {
         return res.status(400).json({ message: 'Error', errors: err });
@@ -26,7 +28,8 @@ export const sendMessage = async (req, res) => {
 };
 
 export const getAllMessagesByFromAndTo = async (req, res) => {
-    const { from, to } = req.body;
+    const from = req.idToken;
+    const { to } = req.body;
 
     try {
         const { errors, valid } = await validaGetMessage(to);

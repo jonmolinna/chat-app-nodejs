@@ -31,7 +31,7 @@ export const createUser = async (req, res) => {
 };
 
 export const getAllUsers = async (req, res) => {
-    const { from } = req.body;
+    const from = req.idToken;
 
     try {
         const users = await User.find({ _id: { $ne: from } }).select("-password");

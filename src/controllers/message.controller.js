@@ -29,7 +29,7 @@ export const sendMessage = async (req, res) => {
 
 export const getAllMessagesByFromAndTo = async (req, res) => {
     const from = req.idToken;
-    const { to } = req.body;
+    const { to } = req.query;
 
     try {
         const { errors, valid } = await validaGetMessage(to);

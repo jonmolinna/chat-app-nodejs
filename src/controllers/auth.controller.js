@@ -26,7 +26,6 @@ export const auth = async (req, res) => {
         });
 
     } catch (err) {
-        console.log('Hola Mundo', err)
         return res.status(400).json({ message: 'Error', errors: err })
     }
 };
